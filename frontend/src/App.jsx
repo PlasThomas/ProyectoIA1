@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// Componentes simples con Tailwind
 const Card = ({ children }) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">{children}</div>
 );
@@ -24,7 +23,6 @@ const Button = ({ children, ...props }) => (
 export default function App() {
   const [zona, setZona] = useState("Ciudad de México");
 
-  // Datos simulados (después conectarás con IA/backend)
   const riesgo = "Alto";
   const colorRiesgo =
     riesgo === "Alto"
@@ -36,12 +34,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-300 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Encabezado */}
         <h1 className="text-3xl font-bold text-center text-gray-800 drop-shadow-lg">
-          🌊 Predicción de Inundaciones - {zona}
+          Predicción de Inundaciones - {zona}
         </h1>
 
-        {/* Barra de búsqueda */}
         <div className="flex gap-2 justify-center">
           <Input
             placeholder="Buscar delegación o colonia..."
@@ -50,7 +46,6 @@ export default function App() {
           <Button>Buscar</Button>
         </div>
 
-        {/* Tarjeta de riesgo */}
         <Card>
           <h2 className="text-xl font-semibold mb-2">Nivel de Riesgo</h2>
           <div
@@ -60,18 +55,16 @@ export default function App() {
           </div>
         </Card>
 
-        {/* Factores climáticos */}
         <Card>
           <h2 className="text-xl font-semibold mb-2">Factores Relacionados</h2>
           <ul className="space-y-1 text-gray-700">
-            <li>☔ Lluvia pronosticada: 85 mm</li>
-            <li>🌡️ Temperatura: 21°C</li>
-            <li>💧 Nivel de agua en drenaje: 75%</li>
-            <li>🏙️ Zona urbana: {zona}</li>
+            <li>Lluvia pronosticada: 85 mm</li>
+            <li>Temperatura: 21°C</li>
+            <li>Nivel de agua en drenaje: 75%</li>
+            <li>Zona urbana: {zona}</li>
           </ul>
         </Card>
 
-        {/* Recomendaciones */}
         <Card>
           <h2 className="text-xl font-semibold mb-2">Recomendaciones</h2>
           <ul className="list-disc list-inside text-gray-700 space-y-1">
