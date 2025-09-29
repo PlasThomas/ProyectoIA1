@@ -1,17 +1,17 @@
 import pandas as pd 
 from sqlalchemy import create_engine #Para la conexion en la base de datos
 
- #aqui hice la configuracion de la base de datos, use mysql
-usuario = "root"  
-password = "yui1810ni" #aqui es donde deben poner su contraseña
-host = "localhost"
-bd = "inundaciones_db" #asi se nombro a la base de datos 
+from dotenv import load_dotenv
+import os
 
-csv_path = "/home/angel/Documentos/IA/data/data-2025-09-28.csv" #aqui es importante que modifiquen la ruta a donde este el csv
+# Carga las variables del archivo .env
+load_dotenv('/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/.env')
+
+csv_path = "/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/db/data/data-2025-09-28.csv" #aqui es importante que modifiquen la ruta a donde este el csv
 
 #Creacion del motor de conexion con SQLAlchemy
 #usamos Mysql con el driver PyMySql
-engine = create_engine(f"mysql+pymysql://{usuario}:{password}@{host}/{bd}")
+engine = create_engine(os.getenv('DB_URL'))
 
 #Extraemos los datos
 

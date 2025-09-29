@@ -4,7 +4,12 @@ from sqlalchemy import create_engine
 from datetime import datetime, timedelta
 import time
 
-API_KEY = "3f51a8775f0dc3ff50ebb05306b266e4" #esta es mi api key de openweathermap
+from dotenv import load_dotenv
+import os
+
+# Carga las variables del archivo .env
+load_dotenv('/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/.env')
+
 alcaldias = [ #la lista de coordenadas de las alcaldias
     ("Cuauhtémoc", 19.4333, -99.1333),
     ("Benito Juárez", 19.4008, -99.1641),
@@ -30,7 +35,7 @@ host = "localhost"
 bd = "inundaciones_db"
 
 #se crea la conexion a Mysql
-engine = create_engine(f"mysql+pymysql://{usuario}:{password}@{host}/{bd}")
+engine = create_engine(os.getenv('DB_URL'))
 
 rows_to_insert = [] #lista donde se guardan los registros del clima antes de insertarlos en la tabla
 now = datetime.utcnow()
@@ -41,7 +46,7 @@ cutoff = now + timedelta(hours=24) #esto es para los pronosticos de las siguient
 
 for alcaldia, lat, lon in alcaldias:
     #url de la api con los parametros de lat, lon y mi apikey
-    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=es"
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={os.getenv('OPENWEATHER_API_KEY')}&units=metric&lang=es"
     
     #peticion HTTP
     r = requests.get(url)
