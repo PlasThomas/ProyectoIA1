@@ -1,2 +1,7 @@
 prai
 .env
+agente/__pycache__
+agente/apis/__pycache__
+agente/agent/__pycache__
+agente/db/__pycache__
+agente/services/__pycache__
