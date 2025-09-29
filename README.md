@@ -1,7 +1,7 @@
 # ProyectoIA1
 Predictor de inundaciones con 24 horas de antelacion en CDMX
 
-## Instalacion
+## Instalacion:
 Ejecutar los siguientes comandos en la raiz del repositorio:
 ``` SHELL
 ./install.sh
@@ -10,3 +10,6 @@ o
 ``` SHELL
 bash install.sh
 ```
+## Activacion del agente:
+
+## Activacion de la interfaz:
