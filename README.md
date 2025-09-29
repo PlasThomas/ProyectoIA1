@@ -5,6 +5,7 @@ Predictor de inundaciones con 24 horas de antelacion en CDMX
 Ejecutar los siguientes comandos en la raiz del repositorio:
 ``` SHELL
 ./install.sh
-# o
+```
+``` SHELL
 bash install.sh
 ```
