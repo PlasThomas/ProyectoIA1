@@ -6,9 +6,9 @@ from typing import Dict, Any
 
 class AtlasInundaciones(Base):
     __tablename__ = "atlas_inundaciones"
-
-    cvegeo = Column(String(20), primary_key=True, index=True)
-    alcaldi = Column(String(100), nullable=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    cvegeo = Column(String(20), nullable=True, index=True)
+    alcaldia = Column(String(100), nullable=True, index=True)
     riesgo = Column(String(50), nullable=True, index=True)
     coordenadas = Column(String(100), nullable=True)
     poligono = Column(JSON, nullable=True)           # GeoJSON almacenado como JSON
@@ -18,14 +18,14 @@ class AtlasInundaciones(Base):
     fuente = Column(String(255), nullable=True)
 
     def __repr__(self) -> str:
-        return f"<AtlasInundaciones(id={self.id}, alcaldia={self.alcaldi}, riesgo={self.riesgo})>"
+        return f"<AtlasInundaciones(id={self.id}, alcaldia={self.alcaldia}, riesgo={self.riesgo})>"
 
     def as_dict(self) -> Dict[str, Any]:
         """Retorna representacion dict (convierte Decimals a floats)."""
         return {
             "id": self.id,
             "cvegeo": self.cvegeo,
-            "alcaldia": self.alcaldi,
+            "alcaldia": self.alcaldia,
             "riesgo": self.riesgo,
             "coordenadas": self.coordenadas,
             "poligono": self.poligono,

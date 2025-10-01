@@ -120,8 +120,14 @@ class FloodPredictionAgent:
         try:
             print(f"Consultando Gemini para {alcaldia}...")
             prompt = crear_prompt_analisis(alcaldia, contexto)
-            response = self.llm.generate_content(prompt)
             
+            # TIMEOUT de 30 segundos
+            import google.api_core.exceptions
+            response = self.llm.generate_content(
+                prompt,
+                request_options={"timeout": 30}
+            )
+    
             # Intentar parsear JSON de la respuesta
             contenido = response.text.strip()
             

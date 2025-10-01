@@ -1,12 +1,19 @@
 # agent/config.py
 from typing import Dict, Any
 
-# Configuración del agente
+# OPCIÓN 1: Mejor balance velocidad/calidad (RECOMENDADO)
 GEMINI_CONFIG = {
-    "model": "gemini-pro",
+    "model": "models/gemini-2.0-flash",  # Rápido y eficiente
     "temperature": 0.1,
     "max_tokens": 800
 }
+
+#OPCIÓN 2: Más inteligente pero más lento
+#GEMINI_CONFIG = {
+#    "model": "models/gemini-2.5-pro",  # Más inteligente
+#    "temperature": 0.1,
+#    "max_tokens": 800
+#}
 
 # Mapeo de niveles de riesgo a probabilidades
 RIESGO_A_PROBABILIDAD = {
