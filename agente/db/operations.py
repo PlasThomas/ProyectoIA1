@@ -173,3 +173,13 @@ def get_monthly_rainfall_sum(db: Session, alcaldia: str, year: int, month: int) 
     )
     res = db.execute(stmt).scalar_one_or_none()
     return float(res) if res is not None else 0.0
+
+def get_all_alcaldias(db: Session) -> List[str]:
+    """Obtiene todas las alcaldías únicas de la base de datos"""
+    try:
+        from .models import AtlasInundaciones  # Import local para evitar circular imports
+        result = db.query(AtlasInundaciones.alcaldia).distinct().all()
+        return [row[0] for row in result if row[0]]  # Filtra valores None
+    except Exception as e:
+        print(f"Error obteniendo alcaldías: {e}")
+        return []
