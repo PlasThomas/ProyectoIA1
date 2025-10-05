@@ -22,6 +22,10 @@ class GeocodingService:
     async def geocode_cdmx_location(self, alcaldia: str) -> Optional[Dict]:
         """Geocodifica una alcaldía específica de CDMX para obtener latitud y longitud."""
         print(f"Geocodificando: {alcaldia}...")
+
+        headers = {
+            'User-Agent': 'FloodPredictionAgent/1.0 (yannigalvan02@aragon.unam.mx)'
+        }
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -31,16 +35,15 @@ class GeocodingService:
                         "format": "json",
                         "limit": 1,
                         "addressdetails": 1
-                    }
+                    },
+                    headers=headers  # <-- Se añade el encabezado aquí
                 )
                 response.raise_for_status()
                 
                 if response.json():
                     data = response.json()[0]
-                    print(f"Éxito geocodificando {alcaldia}: Lat={data['lat']}, Lon={data['lon']}")
                     return {"lat": float(data["lat"]), "lon": float(data["lon"])}
                 
-                print(f"No se encontraron resultados para {alcaldia}")
                 return None
         except Exception as e:
             print(f"Error en geocodificación para {alcaldia}: {e}")
