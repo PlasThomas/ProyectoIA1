@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Card = ({ children, className = "" }) => (
   <div
@@ -24,72 +24,239 @@ const Button = ({ children, ...props }) => (
   </button>
 );
 
-export default function App() {
-  const [zona, setZona] = useState("Ciudad de México");
+const Select = ({ children, ...props }) => (
+  <select
+    {...props}
+    className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+  >
+    {children}
+  </select>
+);
 
-  const riesgo = "Bajo";
-  const colorRiesgo =
-    riesgo === "Alto"
-      ? "bg-red-500"
-      : riesgo === "Medio"
-      ? "bg-yellow-400"
-      : "bg-green-500";
+export default function App() {
+  const [alcaldiaSeleccionada, setAlcaldiaSeleccionada] = useState("");
+  const [alcaldias, setAlcaldias] = useState([]);
+  const [datosPrediccion, setDatosPrediccion] = useState(null);
+  const [cargando, setCargando] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [error, setError] = useState("");
+
+  // Mapeo de alcaldías a imágenes (basado en el orden de tu API)
+  const mapeoImagenes = {
+    "Xochimilco": "1.png",
+    "Benito Juarez": "2.png", 
+    "Tlahuac": "3.png",
+    "Tlalpan": "4.png",
+    "Alvaro Obregon": "5.png",
+    "Iztapalapa": "6.png",
+    "Iztacalco": "7.png",
+    "Gustavo A. Madero": "8.png",
+    "Coyoacan": "9.png",
+    "La Magdalena Contreras": "10.png",
+    "Azcapotzalco": "11.png",
+    "Cuauhtemoc": "12.png",
+    "Miguel Hidalgo": "13.png",
+    "Milpa Alta": "14.png",
+    "Cuajimalpa de Morelos": "15.png",
+    "Venustiano Carranza": "16.png"
+  };
+
+  // Cargar lista de alcaldías al iniciar
+  useEffect(() => {
+    cargarAlcaldias();
+  }, []);
+
+  const cargarAlcaldias = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/alcaldias");
+      const data = await response.json();
+      setAlcaldias(data.alcaldias);
+    } catch (error) {
+      console.error("Error cargando alcaldías:", error);
+      setError("Error conectando con la API");
+    }
+  };
+
+  const buscarPrediccion = async () => {
+    if (!alcaldiaSeleccionada) return;
+    
+    setCargando(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/predict/${encodeURIComponent(alcaldiaSeleccionada)}`
+      );
+      const data = await response.json();
+      setDatosPrediccion(data);
+    } catch (error) {
+      console.error("Error obteniendo predicción:", error);
+      alert("Error al obtener la predicción");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // Obtener la imagen correspondiente a la alcaldía seleccionada
+  const obtenerImagenAlcaldia = (alcaldiaNombre) => {
+    return mapeoImagenes[alcaldiaNombre] || "default.png";
+  };
+
+  // Filtrar alcaldías basado en la búsqueda
+  const alcaldiasFiltradas = alcaldias.filter(alcaldia =>
+    alcaldia.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  // Determinar color del riesgo
+  const getColorRiesgo = (nivelRiesgo) => {
+    switch (nivelRiesgo?.toLowerCase()) {
+      case "alto": return "bg-red-500";
+      case "medio": return "bg-yellow-400";
+      case "bajo": return "bg-green-500";
+      default: return "bg-gray-400";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-300 p-6 flex justify-center items-start">
       <div className="w-full max-w-6xl space-y-8">
         <h1 className="text-3xl font-bold text-gray-800 drop-shadow-lg text-center">
-          Predicción de Inundaciones - {zona}
+          Predicción de Inundaciones - CDMX
         </h1>
 
         <div className="flex gap-2 justify-center max-w-xl mx-auto">
-          <Input
-            placeholder="Buscar delegación o colonia..."
-            onChange={(e) => setZona(e.target.value)}
-          />
-          <Button>Buscar</Button>
+          <Select
+            value={alcaldiaSeleccionada}
+            onChange={(e) => setAlcaldiaSeleccionada(e.target.value)}
+          >
+            <option value="">Selecciona una alcaldía</option>
+            {alcaldiasFiltradas.map((alcaldia) => (
+              <option key={alcaldia} value={alcaldia}>
+                {alcaldia}
+              </option>
+            ))}
+          </Select>
+          <Button onClick={buscarPrediccion} disabled={cargando || !alcaldiaSeleccionada}>
+            {cargando ? "Cargando..." : "Buscar"}
+          </Button>
         </div>
 
-        <div className="max-w-md mx-auto">
-          <Card className="text-center">
-            <h2 className="text-xl font-semibold mb-2">Nivel de Riesgo</h2>
-            <div
-              className={`text-white font-bold py-3 rounded-lg ${colorRiesgo}`}
-            >
-              {riesgo}
+        {datosPrediccion && (
+          <>
+            {/* Tarjeta de Nivel de Riesgo */}
+            <div className="max-w-md mx-auto">
+              <Card className="text-center">
+                <h2 className="text-xl font-semibold mb-2">Nivel de Riesgo</h2>
+                <div
+                  className={`text-white font-bold py-3 rounded-lg ${getColorRiesgo(
+                    datosPrediccion.predicciones?.["24_horas"]?.nivel_riesgo
+                  )}`}
+                >
+                  {datosPrediccion.predicciones?.["24_horas"]?.nivel_riesgo || "No disponible"}
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Lluvia pronosticada: {datosPrediccion.predicciones?.["24_horas"]?.lluvia_total_mm || 0} mm
+                </p>
+              </Card>
+            </div>
+
+            {/* Imagen de la Alcaldía */}
+            <Card className="text-center">
+              <h2 className="text-xl font-semibold mb-4">
+                {datosPrediccion.alcaldia} - Análisis de Riesgo
+              </h2>
+              <div className="flex flex-col items-center justify-center">
+                <img 
+                  src={`/img/${obtenerImagenAlcaldia(datosPrediccion.alcaldia)}`}
+                  alt={`Mapa de riesgo para ${datosPrediccion.alcaldia}`}
+                  className="max-w-full h-auto max-h-80 rounded-lg shadow-md border-2 border-gray-200"
+                  onError={(e) => {
+                    e.target.src = "/img/default.png"; // Fallback si la imagen no existe
+                  }}
+                />
+                <p className="text-sm text-gray-600 mt-2">
+                  Mapa de riesgo para {datosPrediccion.alcaldia}
+                </p>
+              </div>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Factores de Riesgo */}
+              <Card>
+                <h2 className="text-xl font-semibold mb-2">Factores de Riesgo</h2>
+                <ul className="space-y-2 text-gray-700">
+                  {datosPrediccion.analisis_contextual?.factores_riesgo?.map((factor, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-red-500 mr-2">•</span>
+                      {factor}
+                    </li>
+                  ))}
+                </ul>
+                
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold text-blue-800 mb-1">Explicación:</h3>
+                  <p className="text-sm text-blue-700">
+                    {datosPrediccion.analisis_contextual?.explicacion_corta}
+                  </p>
+                </div>
+              </Card>
+
+              {/* Recomendaciones */}
+              <Card>
+                <h2 className="text-xl font-semibold mb-2">Recomendaciones</h2>
+                <ul className="space-y-2 text-gray-700">
+                  {datosPrediccion.analisis_contextual?.recomendaciones?.map((recomendacion, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-green-500 mr-2">✓</span>
+                      <span className="break-words whitespace-normal">
+                        {recomendacion.replace(/_/g, ' ')}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold text-gray-700 mb-1">Fuente de datos:</h3>
+                  <p className="text-sm text-gray-600">
+                    Clima: {datosPrediccion.datos_utilizados?.fuente_clima} | 
+                    Análisis: {datosPrediccion.datos_utilizados?.modo_analisis}
+                  </p>
+                </div>
+              </Card>
+            </div>
+
+            {/* Información Adicional */}
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">Resumen de la Situación</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {datosPrediccion.predicciones?.["24_horas"]?.lluvia_total_mm || 0} mm
+                  </div>
+                  <div className="text-sm text-blue-500">Lluvia en 24h</div>
+                </div>
+                <div className="p-3 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {datosPrediccion.analisis_contextual?.factores_riesgo?.length || 0}
+                  </div>
+                  <div className="text-sm text-orange-500">Factores de riesgo</div>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">
+                    {datosPrediccion.analisis_contextual?.recomendaciones?.length || 0}
+                  </div>
+                  <div className="text-sm text-green-500">Recomendaciones</div>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+
+        {!datosPrediccion && !cargando && (
+          <Card className="text-center py-12">
+            <div className="text-gray-500 text-lg">
+              Selecciona una alcaldía y haz clic en "Buscar" para ver la predicción de inundaciones
             </div>
           </Card>
-        </div>
-
-        <Card className="text-center">
-          <h2 className="text-xl font-semibold mb-4">
-            Imagen de la Ciudad de México
-          </h2>
-          <div className="flex items-center justify-center h-80 bg-gray-200 rounded-lg text-gray-600">
-            📷 Aquí irá la imagen generada por IA
-          </div>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <h2 className="text-xl font-semibold mb-2">Factores Relacionados</h2>
-            <ul className="space-y-1 text-gray-700">
-              <li>☔ Lluvia pronosticada: 85 mm</li>
-              <li>🌡️ Temperatura: 21°C</li>
-              <li>💧 Nivel de agua en drenaje: 75%</li>
-              <li>🏙️ Zona urbana: {zona}</li>
-            </ul>
-          </Card>
-
-          <Card>
-            <h2 className="text-xl font-semibold mb-2">Recomendaciones</h2>
-            <ul className="list-disc list-inside text-gray-700 space-y-1">
-              <li>Evitar transitar por zonas bajas o túneles.</li>
-              <li>Tener lista una ruta alterna de evacuación.</li>
-              <li>Resguardar documentos y objetos de valor.</li>
-            </ul>
-          </Card>
-        </div>
+        )}
       </div>
     </div>
   );

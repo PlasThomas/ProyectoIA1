@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 import os
 
 # Carga las variables del archivo .env
-load_dotenv('/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/.env')
+load_dotenv('/home/diego/Documentos/clima/mi-repo/.env')
 
-csv_path = "/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/db/data/data_geo_limpia.csv" #aqui es importante que modifiquen la ruta a donde este el csv
+csv_path = "/home/diego/Documentos/clima/mi-repo/db/data/data_geo_limpia.csv" #aqui es importante que modifiquen la ruta a donde este el csv
 
 #Creacion del motor de conexion con SQLAlchemy
 #usamos Mysql con el driver PyMySql

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 
 # Carga las variables del archivo .env
-load_dotenv('/home/thomas/Documentos/Escuela/Noveno_semestre/IA/ProyectoIA1/.env')
+load_dotenv('/home/diego/Documentos/clima/mi-repo/.env')
 
 alcaldias = [ #la lista de coordenadas de las alcaldias
     ("Cuauhtémoc", 19.4333, -99.1333),
