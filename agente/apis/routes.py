@@ -41,14 +41,20 @@ async def get_alcaldias(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error obteniendo alcaldías: {str(e)}")
 
 @router.get("/predict/{alcaldia}")
-async def predict_flood_risk(alcaldia: str, agent: FloodPredictionAgent = Depends(get_flood_agent)):
+async def predict_flood_risk(alcaldia: str, periodo: int = 24, agent: FloodPredictionAgent = Depends(get_flood_agent)):
     """Obtiene la predicción de riesgo de inundación para una alcaldía específica"""
     try:
         if not alcaldia or not alcaldia.strip():
             raise HTTPException(status_code=400, detail="El nombre de la alcaldía no puede estar vacío")
         
-        print(f"🔍 Solicitando predicción para: {alcaldia}")
-        resultado = await agent.predict_for_alcaldia(alcaldia.strip())
+        # Valida que el periodo sea uno de los valores permitidos
+        if periodo not in [24, 48]:
+            raise HTTPException(status_code=400, detail="El periodo debe ser 24 o 48 horas")
+
+        print(f"🔍 Solicitando predicción para: {alcaldia} en un periodo de {periodo}h")
+        
+        # Pasamos el periodo al agente
+        resultado = await agent.predict_for_alcaldia(alcaldia.strip(), periodo=periodo)
         
         if resultado.get("error"):
             raise HTTPException(status_code=404, detail=resultado["mensaje"])
@@ -58,7 +64,7 @@ async def predict_flood_risk(alcaldia: str, agent: FloodPredictionAgent = Depend
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error en predicción para {alcaldia}: {str(e)}")
+        print(f"Error en predicción para {alcaldia}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
 @router.post("/predict/batch")

@@ -3,11 +3,29 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from .models import AtlasInundaciones, Clima
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # ---------------------------
 # Atlas (polígonos / zonas)
 # ---------------------------
+
+def get_forecast_from_db(db: Session, alcaldia: str, periodo_horas: int = 24) -> List[Clima]:
+    """
+    Obtiene el pronóstico del clima más reciente de la BD para una alcaldía
+    en un periodo determinado (24 o 48 horas).
+    """
+    # Determina el número de registros a obtener (8 para 24h, 16 para 48h)
+    limit = 8 if periodo_horas == 24 else 16
+    
+    # Busca los registros más recientes dentro de la ventana de tiempo
+    ahora = datetime.utcnow()
+    tiempo_limite = ahora + timedelta(hours=periodo_horas)
+    
+    return db.query(Clima).filter(
+        Clima.alcaldia == alcaldia,
+        Clima.fecha >= ahora,
+        Clima.fecha <= tiempo_limite
+    ).order_by(Clima.fecha.asc()).limit(limit).all()
 
 def get_atlas_by_id(db: Session, record_id: int) -> Optional[AtlasInundaciones]:
     """Obtener un registro del atlas por id."""
